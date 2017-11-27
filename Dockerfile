@@ -17,7 +17,7 @@ RUN git clone ssh://git@dev.imis.uni-luebeck.de/netzdatenstrom/netz-daten-strom.
 
 # Update node modules defined in package.json 
 WORKDIR /home/my-source/netz-daten-strom/
-npm update
+RUN npm update
 
 # Start sourcejs
 EXPOSE 80
