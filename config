@@ -1,0 +1,4 @@
+host dev.imis.uni-luebeck.de
+ HostName dev.imis.uni-luebeck.de
+ IdentityFile ~/.ssh/id_rsa_server
+ User git
