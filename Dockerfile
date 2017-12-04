@@ -10,7 +10,7 @@ RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.4 main" | 
 RUN apt-get update
 
 # Install software 
-RUN apt-get install -y git mongodb-org webhook
+RUN apt-get install -y git mongodb-org
 
 # WORKARROUND copy private keys into the container (this should be done by shared volumes) 
 RUN mkdir /root/.ssh/
@@ -21,18 +21,30 @@ RUN ssh-keyscan -t rsa dev.imis.uni-luebeck.de 2>&1 >> /root/.ssh/known_hosts
 RUN ls -l # This displys the id_rsa key folder. If empty the folder was not added correctly
 
 # Clone our repository into the docker container
-RUN git clone ssh://git@dev.imis.uni-luebeck.de/netzdatenstrom/netz-daten-strom.git /home/my-sourcejs/
+RUN git clone ssh://git@dev.imis.uni-luebeck.de/netzdatenstrom/netz-daten-strom.git /home/sourcejs/
 
-WORKDIR /home/my-sourcejs/
-#RUN git clone https://github.com/sourcejs/init.git -b npm my-sourcejs && cd my-sourcejs npm install sourcejs --save npm start
+WORKDIR /home/sourcejs/
 RUN cd sourcejs npm install sourcejs --save npm start
 
 # Update node modules defined in package.json 
-WORKDIR /home/my-sourcejs/netz-daten-strom/
+WORKDIR /home/sourcejs/netz-daten-strom/
 RUN npm update
+
+# Install webhook
+WORKDIR /home/sourcejs/deployment/
+RUN sh installGo.sh
+ENV GOPATH=$HOME/work
+ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+RUN go get github.com/adnanh/webhook
+
+# Prepare webhook for continious integration
+#EXPOSE 9000
+#WORKDIR /home/sourcejs/deployment/
+#ENTRYPOINT ["webhook", "-hooks hooks.json -verbose"]
 
 # prepare sourcejs start
 EXPOSE 8080
-WORKDIR /home/my-sourcejs/netz-daten-strom/node_modules/sourcejs/
-
-CMD [ "npm", "start"] #echo "Starting SourceJS.."
+#WORKDIR /home/sourcejs/netz-daten-strom/node_modules/sourcejs/
+#ENTRYPOINT sh /home/sourcejs/deployment/startSourcejs.sh
+#CMD [ "npm", "start"] #echo "Starting SourceJS.."
+CMD /bin/bash "echo $BRANCH"
