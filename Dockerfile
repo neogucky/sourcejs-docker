@@ -47,4 +47,3 @@ EXPOSE 8080
 #WORKDIR /home/sourcejs/netz-daten-strom/node_modules/sourcejs/
 #ENTRYPOINT sh /home/sourcejs/deployment/startSourcejs.sh
 #CMD [ "npm", "start"] #echo "Starting SourceJS.."
-CMD /bin/bash "echo $BRANCH"
